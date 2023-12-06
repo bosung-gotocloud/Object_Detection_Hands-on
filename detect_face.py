@@ -1,0 +1,75 @@
+# import the necessary packages
+import sys
+import cv2
+import numpy as np
+
+# read the input file name, output file name and confidence threshold from the command line arguments
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+confidence_threshold = float(sys.argv[3])
+
+# load the YOLO network and the class labels
+net = cv2.dnn.readNet("yolov3-face.weights", "yolov3-face.cfg")
+classes = ["face"]
+
+# get the output layer names of the network
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i- 1] for i in net.getUnconnectedOutLayers()]
+
+# read the input image and get its dimensions
+img = cv2.imread(input_file)
+height, width, channels = img.shape
+
+# create a blob from the image and pass it through the network
+blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+net.setInput(blob)
+outs = net.forward(output_layers)
+
+# initialize the lists of confidences and bounding boxes
+confidences = []
+boxes = []
+
+# loop over each of the output layer detections
+for out in outs:
+    # loop over each of the detections
+    for detection in out:
+        # get the confidence score
+        confidence = detection[4]
+        # filter out weak detections by confidence
+        if confidence > confidence_threshold:
+            # get the center coordinates and the width and height of the bounding box
+            center_x = int(detection[0] * width)
+            center_y = int(detection[1] * height)
+            w = int(detection[2] * width)
+            h = int(detection[3] * height)
+            # get the top-left coordinates of the bounding box
+            x = int(center_x - w / 2)
+            y = int(center_y - h / 2)
+            # append the confidence and bounding box to the lists
+            confidences.append(float(confidence))
+            boxes.append([x, y, w, h])
+
+# apply non-maxima suppression to remove overlapping boxes
+indexes = cv2.dnn.NMSBoxes(boxes, confidences, confidence_threshold, 0.4)
+
+# initialize a color for the face class
+color = (0, 255, 0)
+
+# loop over the indexes of the remaining boxes
+for i in indexes:
+#i = i[0]
+    # get the bounding box coordinates and the confidence score
+    x, y, w, h = boxes[i]
+    confidence = confidences[i]
+    # draw the bounding box and the confidence score on the image
+    cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+    cv2.putText(img, "face " + str(round(confidence, 2)), (x, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, color, 1)
+
+# write the output image to the output file
+cv2.imwrite(output_file, img)
+
+# show the input and output images
+cv2.imshow("Input", cv2.imread(input_file))
+cv2.imshow("Output", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

@@ -1,0 +1,4 @@
+python code for face recognition using OpenCV and Yolo
+1. read input file name and result file name with confidence as parameter like "detect_face.py input.jpg output.jpg 0.5"
+2. read input file and detect faces in the input file, and draw box and confidence value around detected faces
+3. write result file and show input and resuult both

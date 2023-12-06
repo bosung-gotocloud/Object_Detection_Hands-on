@@ -1,0 +1,4 @@
+python code for object detection using OpenCV and Yolo
+1. read input file name and result file name with confidence as parameter like "detect_object.py input.jpg output.jpg 0.5"
+2. read input file and detect objects in the input file, and draw box and confidence value around detect objects
+3. write result file and show input and resuult both

@@ -1,0 +1,7 @@
+python code for face comparison using OpenCV and Yolo
+1. read face files names as parameter like 
+"compare_faces.py face1.jpg face2.jpg"
+2. read face files have one face in each file and 
+detect face and compare faces. 
+3. draw box around faces and write similarity.
+4. show each file with box and similarity
